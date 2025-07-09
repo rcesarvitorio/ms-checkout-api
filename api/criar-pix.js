@@ -1,17 +1,27 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método não permitido' });
+  }
 
   try {
     const {
       transaction_amount,
       description,
-      payer,
+      payer
     } = req.body;
 
-    if (!transaction_amount || !description || !payer || !payer.email || !payer.identification) {
-      return res.status(400).json({ error: 'Campos obrigatórios faltando na requisição.' });
+    // Validação básica dos campos
+    if (
+      !transaction_amount ||
+      !description ||
+      !payer?.email ||
+      !payer?.identification?.type ||
+      !payer?.identification?.number
+    ) {
+      return res.status(400).json({ error: 'Campos obrigatórios ausentes ou inválidos.' });
     }
 
+    // Requisição para a API do Mercado Pago
     const response = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
       headers: {
@@ -27,16 +37,17 @@ export default async function handler(req, res) {
     });
 
     const text = await response.text();
-    console.log('📨 Resposta do Mercado Pago:', text);
+    console.log('📨 Resposta Mercado Pago:', text);
 
     if (!response.ok) {
       return res.status(response.status).json({ error: text });
     }
 
     const data = JSON.parse(text);
+
     const qr = data.point_of_interaction?.transaction_data;
 
-    res.status(200).json({
+    return res.status(200).json({
       id: data.id,
       status: data.status,
       qr_code: qr?.qr_code,
