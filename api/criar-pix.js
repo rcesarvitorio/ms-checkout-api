@@ -15,6 +15,8 @@ export default async function handler(req, res) {
       !transaction_amount ||
       !description ||
       !payer?.email ||
+      !payer?.first_name ||
+      !payer?.last_name ||
       !payer?.identification?.type ||
       !payer?.identification?.number
     ) {
