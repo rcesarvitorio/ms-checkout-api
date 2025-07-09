@@ -1,4 +1,5 @@
-import mercadopago from 'mercadopago';
+import pkg from 'mercadopago';
+const mercadopago = pkg;
 
 mercadopago.configure({
   access_token: process.env.MP_ACCESS_TOKEN,
@@ -9,8 +10,8 @@ export default async function handler(req, res) {
 
   try {
     const response = await mercadopago.payment.create({
-      transaction_amount: 50.0,
-      description: "Produto via Pix",
+      transaction_amount: 50,
+      description: "Pagamento via Pix",
       payment_method_id: "pix",
       payer: {
         email: "comprador@email.com",
@@ -28,8 +29,8 @@ export default async function handler(req, res) {
       qr_code: qr.qr_code,
       qr_code_base64: qr.qr_code_base64,
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Erro ao criar Pix" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao criar pagamento Pix" });
   }
 }

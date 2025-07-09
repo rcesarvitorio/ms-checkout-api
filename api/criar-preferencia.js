@@ -1,4 +1,5 @@
-import mercadopago from 'mercadopago';
+import pkg from 'mercadopago';
+const mercadopago = pkg;
 
 mercadopago.configure({
   access_token: process.env.MP_ACCESS_TOKEN,
