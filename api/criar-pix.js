@@ -1,14 +1,14 @@
-const mercadopago = require("mercadopago");
+import mercadopago from 'mercadopago';
 
 mercadopago.configure({
   access_token: process.env.MP_ACCESS_TOKEN,
 });
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
+  if (req.method !== 'POST') return res.status(405).end();
 
   try {
-    const paymentData = {
+    const response = await mercadopago.payment.create({
       transaction_amount: 50.0,
       description: "Produto via Pix",
       payment_method_id: "pix",
@@ -20,9 +20,8 @@ export default async function handler(req, res) {
           number: "19119119100",
         },
       },
-    };
+    });
 
-    const response = await mercadopago.payment.create(paymentData);
     const qr = response.body.point_of_interaction.transaction_data;
 
     res.status(200).json({
