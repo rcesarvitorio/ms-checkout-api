@@ -23,11 +23,14 @@ export default async function handler(req, res) {
       }),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    console.log('🔍 Resposta bruta Mercado Pago:', text);
 
     if (!response.ok) {
-      throw new Error(data.message || 'Erro no pagamento');
+      return res.status(response.status).json({ error: text });
     }
+
+    const data = JSON.parse(text);
 
     const qr = data.point_of_interaction.transaction_data;
 
@@ -38,7 +41,7 @@ export default async function handler(req, res) {
       qr_code_base64: qr.qr_code_base64,
     });
   } catch (error) {
-    console.error('Erro ao criar Pix:', error);
-    res.status(500).json({ error: 'Erro ao criar pagamento Pix' });
+    console.error('❌ Erro ao criar Pix:', error);
+    return res.status(500).json({ error: error.message, stack: error.stack });
   }
 }
