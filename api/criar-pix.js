@@ -1,6 +1,21 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método não permitido' });
+  // ✅ Domínios permitidos
+  const allowedOrigins = [
+    'http://localhost:8080',
+    'https://entrega-segura-rio.lovable.app',
+  ];
+
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
   try {
@@ -10,7 +25,6 @@ export default async function handler(req, res) {
       payer
     } = req.body;
 
-    // Validação básica dos campos
     if (
       !transaction_amount ||
       !description ||
@@ -23,7 +37,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Campos obrigatórios ausentes ou inválidos.' });
     }
 
-    // Requisição para a API do Mercado Pago
     const response = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
       headers: {
